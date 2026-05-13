@@ -2,6 +2,11 @@ import { group, check } from 'k6';
 import http from 'k6/http';
 
 // SWAGGER "PET STORE" API - https://petstore.swagger.io/#/
+
+// npm install 
+// npm run test - to run this test with npm script
+// k6 run tests\test.ts - to run this test with k6 command
+
 // @ts-ignore  - for disabling TypeScript error
 
 export const options = {
