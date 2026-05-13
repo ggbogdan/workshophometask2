@@ -26,7 +26,7 @@ export default function() {
 
     console.log(pets[0])
 
-    const goldenRetriever = pets.find( (pet: any) => pet.name === 'Golden Retriever');
+    const goldenRetriever = pets.find( (pet: any) => pet.name === 'Golden Retriever') ?? 'goldenRetriever_NOT_FOUND';
     console.log(goldenRetriever);
   });
 }
