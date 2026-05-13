@@ -11,13 +11,16 @@ export const options = {
 export default function() {
   group('Default group', function () {
    
-  const resp = http.get('https://petstore.swagger.io/v2/pet/findByStatus?status=available');
-    // console.log(resp.body);
+  const resp: any = http.get('https://petstore.swagger.io/v2/pet/findByStatus?status=available');
+  check(resp, { 'status equals 200': (r) => r.status === 200 });
+      // console.log(resp.body);
     
-    // @ts-ignore
-    console.log( JSON.parse(resp.body)[0])
-  
 
-    check(resp, { 'status equals 200': (r) => r.status === 200 });
+    const pets = JSON.parse(resp.body);
+
+    console.log(pets[0])
+
+    const goldenRetriever = pets.find( (pet: any) => pet.name === 'Golden Retriever');
+    console.log(goldenRetriever);
   });
 }
