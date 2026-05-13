@@ -12,7 +12,11 @@ export default function() {
   group('Default group', function () {
    
   const resp = http.get('https://petstore.swagger.io/v2/pet/findByStatus?status=available');
-    console.log(resp.body);
+    // console.log(resp.body);
+    
+    // @ts-ignore
+    console.log( JSON.parse(resp.body)[0])
+  
 
     check(resp, { 'status equals 200': (r) => r.status === 200 });
   });
