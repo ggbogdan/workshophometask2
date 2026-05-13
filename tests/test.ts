@@ -2,6 +2,7 @@ import { group, check } from 'k6';
 import http from 'k6/http';
 
 // SWAGGER "PET STORE" API - https://petstore.swagger.io/#/
+// @ts-ignore  - for disabling TypeScript error
 
 export const options = {
   vus: 1,
