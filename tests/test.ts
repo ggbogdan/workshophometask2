@@ -1,11 +1,21 @@
 import { group, check } from 'k6';
 import http from 'k6/http';
+// @ts-ignore
+import {randomItem} from '../framework/k6Libs/k6Utils.js';
 
 // SWAGGER "PET STORE" API - https://petstore.swagger.io/#/
 
-// npm install 
-// npm run test - to run this test with npm script
+// npm install - to install dependencies
+// npm run test - to run this test with npm script and with k6 debug requests mode (K6_HTTP_DEBUG=true|full)
 // k6 run tests\test.ts - to run this test with k6 command
+
+// Get token from https://{GRAFANA_ACCOUNT_NAME}.grafana.net/a/k6-app/settings/api-token
+//k6 cloud login --token <YOUR_GRAFANA_API_KEY> - to login to k6 cloud
+//k6 cloud tests\test.ts - to run this test in k6 cloud
+
+
+// JSON.stringify(obj)  - Converts an object to a JSON string.
+// JSON.parse(jsonString)  - Converts a JSON string to an object
 
 // @ts-ignore  - for disabling TypeScript error
 
@@ -19,14 +29,16 @@ export default function() {
    
   const resp: any = http.get('https://petstore.swagger.io/v2/pet/findByStatus?status=available');
   check(resp, { 'status equals 200': (r) => r.status === 200 });
-      // console.log(resp.body);
+        console.log(`response Body: ${resp.body}`);
     
 
     const pets = JSON.parse(resp.body);
+    const randomPet = randomItem(pets);
+    console.log(`Random Pet: ${JSON.stringify(randomPet)}`);
+    console.log(`Random Pet Name: ${randomPet.name}`);
 
-    console.log(pets[0])
-
-    const goldenRetriever = pets.find( (pet: any) => pet.name === 'Golden Retriever') ?? 'goldenRetriever_NOT_FOUND';
-    console.log(goldenRetriever);
+    const foundPet = pets.find( (pet: any) => pet.name === randomPet.name) ?? 'somePet_NOT_FOUND';
+    console.log(`Found Pet by Name: ${JSON.stringify(foundPet)}`);
+    console.log(`Found Pet ID: ${foundPet.id}`);
   });
 }
