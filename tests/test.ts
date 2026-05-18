@@ -1,7 +1,7 @@
 import { group, check } from 'k6';
 import http from 'k6/http';
 // @ts-ignore
-import {randomItem} from '../framework/k6Libs/k6Utils.js';
+ import { randomItem } from 'https://jslib.k6.io/k6-utils/1.2.0/index.js';;
 
 // SWAGGER "PET STORE" API - https://petstore.swagger.io/#/
 
