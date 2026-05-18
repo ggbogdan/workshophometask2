@@ -9,9 +9,9 @@ import http from 'k6/http';
 // npm run test - to run this test with npm script and with k6 debug requests mode (K6_HTTP_DEBUG=true|full)
 // k6 run tests\test.ts - to run this test with k6 command
 
-// Get token from https://{GRAFANA_ACCOUNT_NAME}.grafana.net/a/k6-app/settings/api-token
-//k6 cloud login --token <YOUR_GRAFANA_API_KEY> - to login to k6 cloud
-//k6 cloud tests\test.ts - to run this test in k6 cloud
+// Get API token from https://{GRAFANA_ACCOUNT_NAME}.grafana.net/a/k6-app/settings/api-token
+//k6 cloud login --token <YOUR_API_TOKEN> --stack <GRAFANA_ACCOUNT_NAME> - to login to k6 cloud
+//k6 cloud run tests\test.ts - to run this test in k6 cloud
 
 
 // JSON.stringify(obj)  - Converts an object to a JSON string.
