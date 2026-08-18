@@ -1,6 +1,6 @@
-import { PetService } from "./services/pet.ts";
-import { StoreService } from "./services/store.ts";
-import { UserService } from "./services/user.ts";
+import { PetService } from "./services/pet/pet.ts";
+import { StoreService } from "./services/store/store.ts";
+import { UserService } from "./services/user/user.ts";
 
 class RequestManager {
     petService: PetService = new PetService();

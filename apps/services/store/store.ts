@@ -1,4 +1,4 @@
-import { BaseRequest } from "./baseRequest.ts";
+import { BaseRequest } from "../baseRequest.ts";
 import { Params, RequestBody } from "k6/http";
 
 export class StoreService extends BaseRequest {

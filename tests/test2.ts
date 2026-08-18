@@ -12,6 +12,5 @@ export default function() {
     const availablePets = stepsManager.petSteps.getAvailablePets(pendingPets);
     const soldPets = stepsManager.petSteps.getSoldPets(availablePets);
     const soldPetById = stepsManager.petSteps.getPetById(soldPets, soldPets.soldPetID);
-
     const soldPetById2 = stepsManager.petSteps.getPetById(soldPets, soldPets.pendingPetID);
 }

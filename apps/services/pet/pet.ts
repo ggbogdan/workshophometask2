@@ -1,4 +1,4 @@
-import { BaseRequest } from "./baseRequest.ts";
+import { BaseRequest } from "../baseRequest.ts";
 import { Params } from "k6/http";
 
 export class PetService extends BaseRequest {
