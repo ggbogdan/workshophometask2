@@ -13,7 +13,9 @@ export class PetSteps {
     check(resp, { 'status equals 200': (r) => r.status === 200 });
 
     const pets = JSON.parse(resp.body);
+    check(pets, { 'all pets have pending status': (p) => p.every((pet: any) => pet.status === 'pending') });
     const randomPet = randomItem(pets);
+    if (!randomPet) return stepData;
     const pendingPetID = randomPet.id;
 
     console.log(`Random Pet: ${JSON.stringify(randomPet)}`);
@@ -33,7 +35,9 @@ export class PetSteps {
     check(resp, { 'status equals 200': (r) => r.status === 200 });
 
     const pets = JSON.parse(resp.body);
+    check(pets, { 'all pets have available status': (p) => p.every((pet: any) => pet.status === 'available') });
     const randomPet = randomItem(pets);
+    if (!randomPet) return stepData;
     const availablePetID = randomPet.id;
 
     console.log(`Random Pet: ${JSON.stringify(randomPet)}`);
@@ -53,7 +57,9 @@ export class PetSteps {
     check(resp, { 'status equals 200': (r) => r.status === 200 });
 
     const pets = JSON.parse(resp.body);
+    check(pets, { 'all pets have sold status': (p) => p.every((pet: any) => pet.status === 'sold') });
     const randomPet = randomItem(pets);
+    if (!randomPet) return stepData;
     const soldPetID = randomPet.id;
     const soldPetName = randomPet.name;
 
@@ -65,7 +71,7 @@ export class PetSteps {
   });
  }
 
- getPetById<T extends object>(stepData: T = {} as T, petId: String){
+ getPetById<T extends object>(stepData: T = {} as T, petId: string){
 
     return group('Get Pet By ID', function () {
 
@@ -74,12 +80,12 @@ export class PetSteps {
     check(resp, { 'status equals 200': (r) => r.status === 200 });
 
     const pet = JSON.parse(resp.body);
-    const soldPetID = pet.id;
+    check(pet, { 'returned pet ID matches requested ID': () => String(pet.id) === String(petId) });
 
     console.log(`Pet Details: ${JSON.stringify(pet)}`);
-    console.log(`Sold Pet ID: ${soldPetID}`);
+    console.log(`Pet ID: ${pet.id}`);
 
-    return {...stepData, soldPetID};
+    return {...stepData, foundPetData: pet};
   });
  }
 }

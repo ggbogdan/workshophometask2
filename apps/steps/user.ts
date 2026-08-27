@@ -11,26 +11,27 @@ postUser<T extends object>(stepData: T = {} as T){
     return group('Post User', function () {
 
       const randomUserName = randomString(7);
-      const postUserBody: RequestBody = {
-      id: "0",
+      const postUserBody = {
+      id: 100000,
       username: randomUserName,
       firstName: "string",
       lastName: "string",
       email: "string",
       password: "password",
       phone: "string",
-      userStatus: "0"
+      userStatus: 0
       };
 
       const postUserParams: Params = {
         headers: { 'Content-Type': 'application/json', 'accept': 'application/json' }
       };
 
-    const resp: any = requestManager.userService.createUser(postUserBody, postUserParams);
+    const resp: any = requestManager.userService.createUser(postUserBody as unknown as RequestBody, postUserParams);
 
     check(resp, { 'status equals 200 for post user': (r) => r.status === 200 });
 
     const user = JSON.parse(resp.body);
+    check(user, { 'user creation response code is 200': (u) => u.code === 200 });
 
     console.log(`User Details for created userName ${randomUserName}: ${JSON.stringify(user)}`);
 
@@ -55,6 +56,7 @@ getUserByUserName<T extends object>(stepData: T = {} as T, userName: string){
     const foundUserName = user.username;
     const foundUserPassword = user.password;
     const foundUserID = user.id;
+    check(user, { 'returned username matches requested username': () => user.username === userName });
     console.log(`User Details for userName ${userName}: ${JSON.stringify(user)}`);
 
     return {...stepData, foundUserName, foundUserPassword, foundUserID};
@@ -82,11 +84,11 @@ loginUserByUserNameAndPassword<T extends object>(stepData: T = {} as T, userName
   });
 }
 
-updateUserData<T extends object>(stepData: T = {} as T, userName: string, password: string, userId: string){
+updateUserData<T extends object>(stepData: T = {} as T, userName: string, password: string, userId: number){
 
     return group('Update User Data', function () {
 
-      const updateUserBody: RequestBody = {
+      const updateUserBody = {
       id: userId,
       username: userName,
       firstName: randomString(7),
@@ -94,7 +96,7 @@ updateUserData<T extends object>(stepData: T = {} as T, userName: string, passwo
       email: `${randomString(5)}@example.com`,
       password: password,
       phone: `+1-${randomIntBetween(100, 999)}-${randomIntBetween(100, 999)}-${randomIntBetween(1000, 9999)}`,
-      userStatus: "0"
+      userStatus: 0
       };
 
       const updateUserParams: Params = {
@@ -102,7 +104,7 @@ updateUserData<T extends object>(stepData: T = {} as T, userName: string, passwo
                    'Content-Type': 'application/json'}
         };
 
-    const resp: any = requestManager.userService.updateUser(userName, updateUserBody, updateUserParams);
+    const resp: any = requestManager.userService.updateUser(userName, updateUserBody as unknown as RequestBody, updateUserParams);
 
     check(resp, { 'status equals 200 for update user': (r) => r.status === 200 });
 

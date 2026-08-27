@@ -7,7 +7,7 @@ export class UserService extends BaseRequest {
         return this.POST(`/v2/user`, body, params);
     }
 
-    findUserByUserName(userName: String, params?: Params) {
+    findUserByUserName(userName: string, params?: Params) {
         return this.GET(`/v2/user/${userName}`, params);
     }
 
