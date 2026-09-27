@@ -47,10 +47,10 @@ PET_STORE/
 │   ├── prod/                    # Test data for production environment
 │   └── stage/                   # Test data for staging environment
 ├── tests/
-│   ├── test.ts                  # Basic raw HTTP test (no framework)
-│   ├── test2.ts                 # Pet flow: pending / available / sold pets + find by ID
-│   ├── test3.ts                 # Store flow: create order → delete → verify deletion
-│   └── test4.ts                 # User flow: create → get → login → update → verify
+│   ├── pet_find_available.ts    # Basic raw HTTP test (no framework)
+│   ├── pet_flow.ts              # Pet flow: pending / available / sold pets + find by ID
+│   ├── store_order_lifecycle.ts # Store flow: create order → delete → verify deletion
+│   └── user_flow.ts             # User flow: create → get → login → update → verify
 ├── package.json
 └── tsconfig.json
 ```
@@ -138,10 +138,10 @@ const getOrder = stepsManager.storeSteps.getOrderById(deleteOrder, addOrder.orde
 
 | File | Scenario |
 |---|---|
-| `test.ts` | Raw HTTP call to fetch available pets, picks a random pet and finds it by name (no framework, introductory example) |
-| `test2.ts` | Fetches pending, available, and sold pets; finds a sold pet and a pending pet by ID |
-| `test3.ts` | Creates a store order, deletes it, then verifies it returns 404 |
-| `test4.ts` | Full user lifecycle: logout → create → get → login → update → verify (get again) |
+| `pet_find_available.ts` | Raw HTTP call to fetch available pets, picks a random pet and finds it by name (no framework, introductory example) |
+| `pet_flow.ts` | Fetches pending, available, and sold pets; finds a sold pet and a pending pet by ID |
+| `store_order_lifecycle.ts` | Creates a store order, deletes it, then verifies it returns 404 |
+| `user_flow.ts` | Full user lifecycle: logout → create → get → login → update → verify (get again) |
 
 ---
 
@@ -182,15 +182,15 @@ npm run test
 
 ### Using k6 directly
 ```bash
-k6 run tests/test.ts
-k6 run tests/test2.ts
-k6 run tests/test3.ts
-k6 run tests/test4.ts
+k6 run tests/pet_find_available.ts
+k6 run tests/pet_flow.ts
+k6 run tests/store_order_lifecycle.ts
+k6 run tests/user_flow.ts
 ```
 
 ### With HTTP debug output
 ```bash
-k6 run tests/test2.ts -e K6_HTTP_DEBUG=true
+k6 run tests/pet_flow.ts -e K6_HTTP_DEBUG=true
 ```
 
 ---
@@ -204,7 +204,7 @@ k6 run tests/test2.ts -e K6_HTTP_DEBUG=true
    ```
 3. Run in cloud:
    ```bash
-   k6 cloud run tests/test2.ts
+   k6 cloud run tests/pet_flow.ts
    ```
 
 ---
