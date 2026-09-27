@@ -71,7 +71,7 @@ export class PetSteps {
   });
  }
 
- getPetById<T extends object>(stepData: T = {} as T, petId: string){
+ getPetById<T extends object>(stepData: T = {} as T, petId: number){
 
     return group('Get Pet By ID', function () {
 

@@ -38,7 +38,7 @@ postOrderById<T extends object>(stepData: T = {} as T){
   });
 }
 
-deleteOrderById<T extends object>(stepData: T = {} as T, orderID: string){
+deleteOrderById<T extends object>(stepData: T = {} as T, orderID: number){
 
     return group('Delete Order By ID', function () {
 
@@ -54,7 +54,7 @@ deleteOrderById<T extends object>(stepData: T = {} as T, orderID: string){
   });
 }
 
-getOrderById<T extends object>(stepData: T = {} as T, orderID: string){
+getOrderById<T extends object>(stepData: T = {} as T, orderID: number){
 
     return group('Get Order By ID', function () {
 

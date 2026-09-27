@@ -7,11 +7,11 @@ export class StoreService extends BaseRequest {
         return this.POST(`/v2/store/order`, body, params);
     }
 
-    deleteOrderById(orderId: string, params?: Params) {
+    deleteOrderById(orderId: number, params?: Params) {
         return this.DELETE(`/v2/store/order/${orderId}`, null, params);
     }
 
-    findOrderById(orderId: string, params?: Params) {
+    findOrderById(orderId: number, params?: Params) {
         return this.GET(`/v2/store/order/${orderId}`, params);
     }
 }

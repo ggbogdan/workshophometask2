@@ -10,7 +10,7 @@ export class PetService extends BaseRequest {
     }       
 
 
-    findPetById(petId: string, params?: Params) {
+    findPetById(petId: number, params?: Params) {
         return this.GET(`/v2/pet/${petId}`, params);
     }
 }
