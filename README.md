@@ -6,14 +6,14 @@ A TypeScript-based API performance and integration testing framework built with 
 
 ## Overview
 
-This project provides a structured, layered test framework for automating API tests against the Petstore REST API. It separates concerns into **services** (HTTP layer), **steps** (business logic + assertions), and **tests** (test scenarios), enabling clean and reusable test composition.
+This project provides a structured framework for exercising the Petstore REST API. It separates HTTP calls into **services**, reusable checks and workflows into **steps**, and executable scenarios into **tests**. Pet and store scenarios use the shared step manager; the user lifecycle uses individual executable step classes.
 
 ---
 
 ## Target API
 
 **Base URL:** `https://petstore.swagger.io`  
-**API Version:** v2  
+**API paths:** `/v2/...`  
 **API Docs:** https://petstore.swagger.io/#/
 
 ---
@@ -24,7 +24,8 @@ This project provides a structured, layered test framework for automating API te
 PET_STORE/
 ├── apps/
 │   ├── requestManager.ts        # Singleton exposing all service instances
-│   ├── stepsManager.ts          # Singleton exposing all step instances
+│   ├── stepsManager.ts          # Shared pet, store, and user step instances
+│   ├── stepsManagerExec.ts      # Instances of executable user lifecycle steps
 │   ├── services/
 │   │   ├── baseRequest.ts       # Base HTTP class (GET, POST, PUT, DELETE)
 │   │   ├── pet/
@@ -36,16 +37,22 @@ PET_STORE/
 │   └── steps/
 │       ├── pet.ts               # PetSteps – pet test steps with checks
 │       ├── store.ts             # StoreSteps – store test steps with checks
-│       └── user.ts              # UserSteps – user test steps with checks
+│       ├── user.ts              # UserSteps – user test steps with checks
+│       └── user-steps/          # Individual executable user lifecycle steps
+│           ├── GetUserByUserName.ts
+│           ├── LoginUserByUserNameAndPassword.ts
+│           ├── LogoutUser.ts
+│           ├── PostUser.ts
+│           └── UpdateUserData.ts
 ├── config/
 │   └── frameworkConfig.ts       # Global config (BASE_URL)
 ├── framework/
 │   └── k6Libs/
 │       └── k6Utils.js           # Utility helpers (randomItem, randomString, etc.)
-├── testData/
-│   ├── integration/             # Test data for integration environment
-│   ├── prod/                    # Test data for production environment
-│   └── stage/                   # Test data for staging environment
+├── testData/                    # Environment-specific fixtures (currently empty)
+│   ├── integration/
+│   ├── prod/
+│   └── stage/
 ├── tests/
 │   ├── pet_find_available.ts    # Basic raw HTTP test (no framework)
 │   ├── pet_flow.ts              # Pet flow: pending / available / sold pets + find by ID
@@ -64,18 +71,26 @@ PET_STORE/
 | Layer | Location | Responsibility |
 |---|---|---|
 | **Service** | `apps/services/` | Wraps raw k6 HTTP calls per domain |
-| **Steps** | `apps/steps/` | Composes service calls with `check()` assertions and `group()` labels |
+| **Steps** | `apps/steps/` | Composes service calls with `check()` assertions and `group()` labels; user lifecycle also has executable step classes under `apps/steps/user-steps/` |
 | **Tests** | `tests/` | Orchestrates steps into full test scenarios |
-| **Managers** | `apps/requestManager.ts`, `apps/stepsManager.ts` | Singleton access points for services and steps |
+| **Managers** | `apps/requestManager.ts`, `apps/stepsManager.ts`, `apps/stepsManagerExec.ts` | Shared access points for services and step instances |
 
 ### Data Flow (Steps Pattern)
 
-Each step method accepts a generic `stepData` object and returns it enriched with new values extracted from the response. This allows chaining steps without shared global state:
+Pet and store step methods accept a `stepData` object and return it enriched with values extracted from responses:
 
 ```ts
 const addOrder = stepsManager.storeSteps.postOrderById();
 const deleteOrder = stepsManager.storeSteps.deleteOrderById(addOrder, addOrder.orderID);
 const getOrder = stepsManager.storeSteps.getOrderById(deleteOrder, addOrder.orderID);
+```
+
+The user lifecycle uses executable step objects. Each `execute()` call receives and returns the data accumulated by earlier steps:
+
+```ts
+const createdUser = stepsManagerExec.postUser.execute();
+const fetchedUser = stepsManagerExec.getUserByUserName.execute(createdUser);
+const loggedInUser = stepsManagerExec.loginUserByUserNameAndPassword.execute(fetchedUser);
 ```
 
 ---
@@ -114,7 +129,7 @@ const getOrder = stepsManager.storeSteps.getOrderById(deleteOrder, addOrder.orde
 | `getPendingPets(stepData?)` | GET pending pets, picks a random one, returns `pendingPetID` |
 | `getAvailablePets(stepData?)` | GET available pets, picks a random one, returns `availablePetID` |
 | `getSoldPets(stepData?)` | GET sold pets, picks a random one, returns `soldPetID` and `soldPetName` |
-| `getPetById(stepData?, petId)` | GET a pet by ID, returns `soldPetID` |
+| `getPetById(stepData?, petId)` | GET a pet by ID, returns the response as `foundPetData` |
 
 ### StoreSteps
 | Method | Description |
@@ -123,14 +138,17 @@ const getOrder = stepsManager.storeSteps.getOrderById(deleteOrder, addOrder.orde
 | `deleteOrderById(stepData?, orderID)` | DELETE an order by ID, asserts 200 |
 | `getOrderById(stepData?, orderID)` | GET an order by ID, asserts 404 (verifies deletion) |
 
-### UserSteps
+### UserSteps and executable user steps
+
+`UserSteps` remains available through `stepsManager.userSteps`. The current `user_flow.ts` instead composes the executable classes in `apps/steps/user-steps/`; each class exposes `execute(stepData?)` and reads the required username, password, or ID from the accumulated data.
+
 | Method | Description |
 |---|---|
-| `postUser(stepData?)` | POST a new user with a random username, returns `randomUserName` |
-| `getUserByUserName(stepData?, userName)` | GET a user by username, returns `foundUserName`, `foundUserPassword`, `foundUserID` |
-| `loginUserByUserNameAndPassword(stepData?, userName, password)` | GET login with credentials, asserts 200 |
-| `updateUserData(stepData?, userName, password, userId)` | PUT updated user data with random name/email/phone, asserts 200 |
-| `logoutUser(stepData?)` | GET logout the current user, asserts 200 |
+| `LogoutUser.execute(stepData?)` | GET logout for the current user |
+| `PostUser.execute(stepData?)` | POST a user with a random username; returns `randomUserName` |
+| `GetUserByUserName.execute(stepData)` | GET the accumulated username; returns `foundUserName`, `foundUserPassword`, and `foundUserID` |
+| `LoginUserByUserNameAndPassword.execute(stepData)` | GET login using the fetched username and password |
+| `UpdateUserData.execute(stepData)` | PUT updated user data using the fetched user details |
 
 ---
 
@@ -139,9 +157,9 @@ const getOrder = stepsManager.storeSteps.getOrderById(deleteOrder, addOrder.orde
 | File | Scenario |
 |---|---|
 | `pet_find_available.ts` | Raw HTTP call to fetch available pets, picks a random pet and finds it by name (no framework, introductory example) |
-| `pet_flow.ts` | Fetches pending, available, and sold pets; finds a sold pet and a pending pet by ID |
+| `pet_flow.ts` | Fetches pending, available, and sold pets, then looks up pet IDs |
 | `store_order_lifecycle.ts` | Creates a store order, deletes it, then verifies it returns 404 |
-| `user_flow.ts` | Full user lifecycle: logout → create → get → login → update → verify (get again) |
+| `user_flow.ts` | User lifecycle: logout → create → get → login → update → get again |
 
 ---
 
@@ -175,7 +193,10 @@ npm install
 
 ## Running Tests
 
-### Using npm script (with HTTP debug mode enabled)
+### Using the npm script
+
+Runs `tests/pet_find_available.ts` with HTTP debug output enabled:
+
 ```bash
 npm run test
 ```
@@ -214,6 +235,7 @@ k6 run tests/pet_flow.ts -e K6_HTTP_DEBUG=true
 | Setting | Value | File |
 |---|---|---|
 | Base URL | `https://petstore.swagger.io` | `config/frameworkConfig.ts` |
+| API paths | `/v2/...` | Service classes under `apps/services/` |
 | TypeScript target | ES2020 | `tsconfig.json` |
 | Default VUs | 1 | Each test file (`options`) |
 | Default iterations | 1 | Each test file (`options`) |
